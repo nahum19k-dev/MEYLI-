@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             html: `<p>Lo primero que noté fueron tus ojos. Esos ojos chinitos y llenos de ternura que tienen algo difícil de explicar... no sé si es la forma en que miran o simplemente lo que hay detrás de ellos, pero desde ese momento algo me dijo que valía la pena conocerte mejor.</p>`
         },
         {
-            html: `<p>Y mientras más te conozco, más confirmo que detrás de esa mirada hay una persona disciplinada, inteligente, segura de sí misma, que se levanta a las 6am a cycling sin falta, que almuerza y muere 😂, que sufre con las películas sangrientas pero ama las románticas, que tiene buen gusto para la comida porque el saltado no falla...</p>`
+            html: `<p>Y mientras más te conozco, más confirmo que detrás de esa mirada hay una persona disciplinada, inteligente, segura de sí misma, que se levanta a las 6am a cycling sin falta, que sufre con las películas sangrientas pero ama las románticas, que tiene buen gusto para la comida porque el saltado no falla...</p>`
         },
         {
             html: `<p>...y que hace que las conversaciones no quieran terminar... incluso cuando ya son las 4am y ambos deberíamos estar durmiendo 😏</p>`
@@ -158,20 +158,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 const p2 = line[1];
                 ctx.moveTo(startX + p1.x * scale, startY + p1.y * scale);
                 ctx.lineTo(startX + p2.x * scale, startY + p2.y * scale);
-                
-                // Dibujar estrellitas en los vértices
-                ctx.fillStyle = "rgba(255, 215, 0, " + nameAlpha + ")";
+            });
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Dibujar estrellitas en los vértices
+            ctx.fillStyle = "rgba(255, 215, 0, " + nameAlpha + ")";
+            meyliLines.forEach(line => {
+                const p1 = line[0];
+                const p2 = line[1];
                 ctx.beginPath();
                 ctx.arc(startX + p1.x * scale, startY + p1.y * scale, 4, 0, Math.PI*2);
                 ctx.fill();
                 ctx.beginPath();
                 ctx.arc(startX + p2.x * scale, startY + p2.y * scale, 4, 0, Math.PI*2);
                 ctx.fill();
-                
-                ctx.beginPath(); // Reset para que la línea continúe sin rellenar todo
             });
-            ctx.stroke();
-            ctx.setLineDash([]);
         }
 
         requestAnimationFrame(draw);
