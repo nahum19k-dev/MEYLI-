@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var modalBody = document.getElementById('modal-body');
     var nextBtn = document.getElementById('next-btn');
     var bgMusic = document.getElementById('bg-music');
+    var zoomContainer = document.getElementById('zoom-container');
 
     var isMuted = false;
     var width = 0;
@@ -178,26 +179,23 @@ document.addEventListener('DOMContentLoaded', function() {
             div.style.left = x + "px";
             div.style.top = y + "px";
             
-            // Estructura interna de la estrella
-            div.innerHTML = '<div class="star-rays"></div><div class="star-outer"></div><div class="star-inner"></div><div class="star-core"></div>';
-
-            (function(idx) {
+            (function(idx, posX, posY) {
                 div.addEventListener('click', function() {
                     if (idx <= currentNodeIndex && !showMeyliName) {
-                        var zoomOverlay = document.getElementById('star-zoom');
-                        var rect = div.getBoundingClientRect();
-                        
-                        // Efecto flash centrado en la estrella
-                        zoomOverlay.style.background = 'radial-gradient(circle at ' + (rect.left + rect.width/2) + 'px ' + (rect.top + rect.height/2) + 'px, rgba(255,255,255,1) 0%, rgba(255,215,0,0.8) 15%, transparent 60%)';
-                        zoomOverlay.classList.add('active');
-                        zoomOverlay.classList.remove('closing');
+                        // Zoom 3D real
+                        var ox = (posX / width) * 100;
+                        var oy = (posY / height) * 100;
+                        zoomContainer.style.transformOrigin = ox + "% " + oy + "%";
+                        zoomContainer.style.transform = "scale(8)";
+                        zoomContainer.style.opacity = "0.2"; // Oscurecer el fondo al acercarse
                         
                         setTimeout(function() {
                             showModal(idx);
-                        }, 400); // Muestra la carta en el pico del flash
+                        }, 800);
                     }
                 });
-            })(i);
+            })(i, x, y);
+            
             nodesContainer.appendChild(div);
             constellationNodes.push({ x: x, y: y, el: div });
         }
@@ -210,31 +208,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showModal(idx) {
         modalBody.innerHTML = letterSteps[idx].html;
-        contentModal.classList.add('visible'); // Usando 'visible' ahora, no quitando 'hidden'
+        contentModal.classList.remove('hidden');
         nextBtn.innerHTML = (idx === letterSteps.length - 1) ? "Cerrar \u2764\uFE0F" : "Siguiente \uD83C\uDF1F";
     }
 
     nextBtn.addEventListener('click', function() {
-        contentModal.classList.remove('visible');
+        contentModal.classList.add('hidden');
         
-        var zoomOverlay = document.getElementById('star-zoom');
-        zoomOverlay.classList.remove('active');
-        zoomOverlay.classList.add('closing');
-        setTimeout(function(){ zoomOverlay.classList.remove('closing'); }, 800);
+        // Volver del Zoom 3D
+        zoomContainer.style.transform = "scale(1)";
+        zoomContainer.style.opacity = "1";
 
-        if (currentNodeIndex < constellationNodes.length) constellationNodes[currentNodeIndex].el.classList.add('visited');
-        if (currentNodeIndex < letterSteps.length - 1) {
-            currentNodeIndex++;
-            revealNode(currentNodeIndex);
-        } else {
-            setTimeout(function() {
-                showMeyliName = true;
-                for (var i = 0; i < constellationNodes.length; i++) {
-                    constellationNodes[i].el.style.transition = 'opacity 2s ease';
-                    constellationNodes[i].el.style.opacity = '0';
-                }
-            }, 800);
-        }
+        setTimeout(function() {
+            if (currentNodeIndex < constellationNodes.length) constellationNodes[currentNodeIndex].el.classList.add('visited');
+            if (currentNodeIndex < letterSteps.length - 1) {
+                currentNodeIndex++;
+                revealNode(currentNodeIndex);
+            } else {
+                setTimeout(function() {
+                    showMeyliName = true;
+                    for (var i = 0; i < constellationNodes.length; i++) {
+                        constellationNodes[i].el.style.transition = 'opacity 2s ease';
+                        constellationNodes[i].el.style.opacity = '0';
+                    }
+                }, 800);
+            }
+        }, 1000); // Esperar a que termine el zoom out antes de revelar la siguiente
     });
 
     // ===== INICIAR =====
@@ -248,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
             draw();
         }, 1000);
 
-        // Reproducir musica - simple y directo
+        // Reproducir musica
         bgMusic.volume = 0.5;
         bgMusic.play().catch(function(e) {
             console.log("Audio play error:", e);
