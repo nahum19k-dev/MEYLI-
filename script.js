@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `
         },
         {
-            html: `<p>Lo primero que noté fueron tus ojos. Esos ojos grandes y llenos de ternura que tienen algo difícil de explicar... no sé si es la forma en que miran o simplemente lo que hay detrás de ellos, pero desde ese momento algo me dijo que valía la pena conocerte mejor.</p>`
+            html: `<p>Lo primero que noté fueron tus ojos. Esos ojos chinitos y llenos de ternura que tienen algo difícil de explicar... no sé si es la forma en que miran o simplemente lo que hay detrás de ellos, pero desde ese momento algo me dijo que valía la pena conocerte mejor.</p>`
         },
         {
             html: `<p>Y mientras más te conozco, más confirmo que detrás de esa mirada hay una persona disciplinada, inteligente, segura de sí misma, que se levanta a las 6am a cycling sin falta, que almuerza y muere 😂, que sufre con las películas sangrientas pero ama las románticas, que tiene buen gusto para la comida porque el saltado no falla...</p>`
