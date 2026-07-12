@@ -1,46 +1,27 @@
-// ============ YOUTUBE IFRAME API (Aladdin - A Whole New World) ============
-let ytPlayer;
-function onYouTubeIframeAPIReady() {
-    ytPlayer = new YT.Player('youtube-player', {
-        height: '1',
-        width: '1',
-        videoId: 'hZ1Rb9hC4JY', // A Whole New World - Aladdin
-        playerVars: {
-            'autoplay': 0,
-            'controls': 0,
-            'showinfo': 0,
-            'rel': 0,
-            'loop': 1,
-            'playlist': 'hZ1Rb9hC4JY'
-        }
-    });
-}
+document.addEventListener('DOMContentLoaded', function() {
+    var openBtn = document.getElementById('open-btn');
+    var landingScreen = document.getElementById('landing-screen');
+    var constellationScreen = document.getElementById('constellation-screen');
+    var muteBtn = document.getElementById('mute-btn');
+    var nodesContainer = document.getElementById('nodes-container');
+    var canvas = document.getElementById('star-canvas');
+    var ctx = canvas.getContext('2d');
+    var contentModal = document.getElementById('content-modal');
+    var modalBody = document.getElementById('modal-body');
+    var nextBtn = document.getElementById('next-btn');
+    var ytMusic = document.getElementById('yt-music');
 
-// ============ MAIN APP ============
-document.addEventListener('DOMContentLoaded', () => {
-    const openBtn = document.getElementById('open-btn');
-    const landingScreen = document.getElementById('landing-screen');
-    const constellationScreen = document.getElementById('constellation-screen');
-    const muteBtn = document.getElementById('mute-btn');
-    const nodesContainer = document.getElementById('nodes-container');
-    const canvas = document.getElementById('star-canvas');
-    const ctx = canvas.getContext('2d');
-    const contentModal = document.getElementById('content-modal');
-    const modalBody = document.getElementById('modal-body');
-    const nextBtn = document.getElementById('next-btn');
-    const instruction = document.getElementById('instruction');
+    var isMuted = false;
+    var width, height;
+    var bgStars = [];
+    var shootingStars = [];
+    var constellationNodes = [];
+    var currentNodeIndex = 0;
+    var showMeyliName = false;
+    var nameAlpha = 0;
 
-    let isMuted = false;
-    let width, height;
-    let bgStars = [];
-    let shootingStars = [];
-    let constellationNodes = [];
-    let currentNodeIndex = 0;
-    let showMeyliName = false;
-    let nebulaHue = 0;
-
-    // ============ LETTER CONTENT ============
-    const letterSteps = [
+    // ===== CARTA =====
+    var letterSteps = [
         {
             html: '<div class="photo-container"><img src="meyli.jpg" alt="Meyli" class="meyli-photo"></div><p>Hay personas que llegan a tu vida en los momentos m\u00e1s inesperados... como en una entrevista de trabajo donde supuestamente uno deber\u00eda estar concentrado en otras cosas. Pero entonces alguien te habla, te pregunta algo, y sin darte cuenta ya capt\u00f3 toda tu atenci\u00f3n.</p>'
         },
@@ -61,21 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
-    // ============ MEYLI CONSTELLATION SHAPE ============
-    const meyliLines = [
-        // M
+    // ===== MEYLI LINEAS =====
+    var meyliLines = [
         [{x:0,y:2},{x:0,y:0}], [{x:0,y:0},{x:0.5,y:1}], [{x:0.5,y:1},{x:1,y:0}], [{x:1,y:0},{x:1,y:2}],
-        // E
         [{x:1.5,y:0},{x:2.5,y:0}], [{x:1.5,y:0},{x:1.5,y:1}], [{x:1.5,y:1},{x:2.3,y:1}], [{x:1.5,y:1},{x:1.5,y:2}], [{x:1.5,y:2},{x:2.5,y:2}],
-        // Y
         [{x:3,y:0},{x:3.5,y:1}], [{x:4,y:0},{x:3.5,y:1}], [{x:3.5,y:1},{x:3.5,y:2}],
-        // L
         [{x:4.5,y:0},{x:4.5,y:2}], [{x:4.5,y:2},{x:5.5,y:2}],
-        // I
         [{x:6,y:0},{x:6,y:2}]
     ];
 
-    // ============ CANVAS SETUP ============
+    // ===== CANVAS =====
     function resize() {
         width = window.innerWidth;
         height = window.innerHeight;
@@ -85,252 +61,184 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.addEventListener('resize', resize);
 
-    // ============ REALISTIC STARS ============
     function initBgStars() {
         bgStars = [];
-        // Multiple star layers for depth
-        for (let i = 0; i < 250; i++) {
-            const layer = Math.random();
-            let r, baseAlpha;
-            if (layer < 0.7) { r = Math.random() * 0.8 + 0.2; baseAlpha = Math.random() * 0.5 + 0.2; }
-            else if (layer < 0.92) { r = Math.random() * 1.2 + 0.8; baseAlpha = Math.random() * 0.4 + 0.5; }
-            else { r = Math.random() * 1.5 + 1.2; baseAlpha = Math.random() * 0.3 + 0.7; }
-
-            // Star color variety
-            const colors = ['255,255,255', '255,240,220', '200,220,255', '255,220,180', '220,200,255'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-
+        for (var i = 0; i < 200; i++) {
             bgStars.push({
                 x: Math.random() * width,
                 y: Math.random() * height,
-                r: r,
-                baseAlpha: baseAlpha,
-                alpha: baseAlpha,
-                twinkleSpeed: Math.random() * 0.03 + 0.005,
-                twinklePhase: Math.random() * Math.PI * 2,
-                color: color
+                r: Math.random() * 1.5 + 0.3,
+                alpha: Math.random() * 0.6 + 0.3,
+                speed: Math.random() * 0.02 + 0.005
             });
         }
     }
 
-    // ============ SHOOTING STARS ============
-    function spawnShootingStar() {
-        shootingStars.push({
-            x: Math.random() * width,
-            y: Math.random() * height * 0.4,
-            length: Math.random() * 80 + 40,
-            speed: Math.random() * 6 + 4,
-            angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3,
-            alpha: 1,
-            life: 0
-        });
-    }
+    // ===== SHOOTING STARS =====
+    setInterval(function() {
+        if (Math.random() < 0.5) {
+            shootingStars.push({
+                x: Math.random() * width * 0.8,
+                y: Math.random() * height * 0.3,
+                len: Math.random() * 60 + 30,
+                spd: Math.random() * 5 + 4,
+                alpha: 1
+            });
+        }
+    }, 4000);
 
-    // Random shooting stars
-    setInterval(() => {
-        if (Math.random() < 0.4) spawnShootingStar();
-    }, 3000);
-
-    // ============ DRAW LOOP ============
-    let frameCount = 0;
+    // ===== DRAW =====
     function draw() {
         ctx.clearRect(0, 0, width, height);
-        frameCount++;
 
-        // Subtle nebula glow
-        nebulaHue += 0.1;
-        const nebulaGrad = ctx.createRadialGradient(width*0.3, height*0.4, 0, width*0.3, height*0.4, width*0.5);
-        nebulaGrad.addColorStop(0, 'rgba(60, 20, 80, 0.03)');
-        nebulaGrad.addColorStop(0.5, 'rgba(20, 30, 80, 0.02)');
-        nebulaGrad.addColorStop(1, 'transparent');
-        ctx.fillStyle = nebulaGrad;
-        ctx.fillRect(0, 0, width, height);
+        // Estrellas de fondo
+        for (var i = 0; i < bgStars.length; i++) {
+            var s = bgStars[i];
+            s.alpha += (Math.random() - 0.5) * s.speed;
+            if (s.alpha < 0.15) s.alpha = 0.15;
+            if (s.alpha > 1) s.alpha = 1;
 
-        const nebulaGrad2 = ctx.createRadialGradient(width*0.75, height*0.6, 0, width*0.75, height*0.6, width*0.4);
-        nebulaGrad2.addColorStop(0, 'rgba(80, 20, 50, 0.025)');
-        nebulaGrad2.addColorStop(1, 'transparent');
-        ctx.fillStyle = nebulaGrad2;
-        ctx.fillRect(0, 0, width, height);
-
-        // Background stars with realistic twinkle
-        bgStars.forEach(star => {
-            star.twinklePhase += star.twinkleSpeed;
-            star.alpha = star.baseAlpha + Math.sin(star.twinklePhase) * 0.25;
-            if (star.alpha < 0.05) star.alpha = 0.05;
-            if (star.alpha > 1) star.alpha = 1;
-
-            // Star glow
-            if (star.r > 1) {
-                ctx.fillStyle = "rgba(" + star.color + ", " + (star.alpha * 0.15) + ")";
-                ctx.beginPath();
-                ctx.arc(star.x, star.y, star.r * 4, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // Star core
-            ctx.fillStyle = "rgba(" + star.color + ", " + star.alpha + ")";
+            ctx.fillStyle = "rgba(255, 255, 255, " + s.alpha + ")";
             ctx.beginPath();
-            ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
             ctx.fill();
+        }
 
-            // Cross-shaped diffraction spikes for bright stars
-            if (star.r > 1.5 && star.alpha > 0.6) {
-                ctx.strokeStyle = "rgba(" + star.color + ", " + (star.alpha * 0.3) + ")";
-                ctx.lineWidth = 0.5;
-                ctx.beginPath();
-                ctx.moveTo(star.x - star.r * 3, star.y);
-                ctx.lineTo(star.x + star.r * 3, star.y);
-                ctx.moveTo(star.x, star.y - star.r * 3);
-                ctx.lineTo(star.x, star.y + star.r * 3);
-                ctx.stroke();
+        // Estrellas fugaces
+        for (var j = shootingStars.length - 1; j >= 0; j--) {
+            var ss = shootingStars[j];
+            ss.x += ss.spd;
+            ss.y += ss.spd * 0.6;
+            ss.alpha -= 0.012;
+
+            if (ss.alpha <= 0) {
+                shootingStars.splice(j, 1);
+                continue;
             }
-        });
 
-        // Shooting stars
-        shootingStars.forEach((s, i) => {
-            s.life++;
-            s.x += Math.cos(s.angle) * s.speed;
-            s.y += Math.sin(s.angle) * s.speed;
-            s.alpha -= 0.015;
+            var tailX = ss.x - ss.len * 0.7;
+            var tailY = ss.y - ss.len * 0.42;
+            var grad = ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+            grad.addColorStop(0, "rgba(255,255,255,0)");
+            grad.addColorStop(1, "rgba(255,255,255," + ss.alpha + ")");
 
-            if (s.alpha > 0) {
-                const tailX = s.x - Math.cos(s.angle) * s.length;
-                const tailY = s.y - Math.sin(s.angle) * s.length;
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(tailX, tailY);
+            ctx.lineTo(ss.x, ss.y);
+            ctx.stroke();
+        }
 
-                const grad = ctx.createLinearGradient(tailX, tailY, s.x, s.y);
-                grad.addColorStop(0, "rgba(255,255,255,0)");
-                grad.addColorStop(1, "rgba(255,255,255," + s.alpha + ")");
-
-                ctx.strokeStyle = grad;
-                ctx.lineWidth = 1.5;
-                ctx.beginPath();
-                ctx.moveTo(tailX, tailY);
-                ctx.lineTo(s.x, s.y);
-                ctx.stroke();
-
-                // Head glow
-                ctx.fillStyle = "rgba(255,255,255," + s.alpha + ")";
-                ctx.beginPath();
-                ctx.arc(s.x, s.y, 2, 0, Math.PI * 2);
-                ctx.fill();
-            } else {
-                shootingStars.splice(i, 1);
-            }
-        });
-
-        // ============ CONSTELLATION LINES ============
+        // Constelacion normal
         if (!showMeyliName) {
             if (currentNodeIndex > 0) {
-                for (let i = 1; i <= currentNodeIndex && i < constellationNodes.length; i++) {
-                    const prev = constellationNodes[i-1];
-                    const curr = constellationNodes[i];
-
-                    // Glow line
-                    ctx.strokeStyle = "rgba(255, 215, 0, 0.15)";
-                    ctx.lineWidth = 6;
-                    ctx.beginPath();
-                    ctx.moveTo(prev.x, prev.y);
-                    ctx.lineTo(curr.x, curr.y);
-                    ctx.stroke();
-
-                    // Core line
-                    ctx.strokeStyle = "rgba(255, 215, 0, 0.7)";
-                    ctx.lineWidth = 1.5;
-                    ctx.beginPath();
-                    ctx.moveTo(prev.x, prev.y);
-                    ctx.lineTo(curr.x, curr.y);
-                    ctx.stroke();
+                // Linea glow
+                ctx.strokeStyle = "rgba(255, 215, 0, 0.15)";
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                for (var k = 1; k <= currentNodeIndex && k < constellationNodes.length; k++) {
+                    ctx.moveTo(constellationNodes[k-1].x, constellationNodes[k-1].y);
+                    ctx.lineTo(constellationNodes[k].x, constellationNodes[k].y);
                 }
+                ctx.stroke();
+
+                // Linea core
+                ctx.strokeStyle = "rgba(255, 215, 0, 0.7)";
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                for (var k2 = 1; k2 <= currentNodeIndex && k2 < constellationNodes.length; k2++) {
+                    ctx.moveTo(constellationNodes[k2-1].x, constellationNodes[k2-1].y);
+                    ctx.lineTo(constellationNodes[k2].x, constellationNodes[k2].y);
+                }
+                ctx.stroke();
             }
         } else {
-            // MEYLI name constellation
-            const nameAlpha = Math.min(1, frameCount * 0.005);
-            const scale = Math.min(width / 8, 80);
-            const totalWidth = 6 * scale;
-            const startX = (width - totalWidth) / 2;
-            const startY = height / 2 - scale;
+            // MEYLI
+            if (nameAlpha < 1) nameAlpha += 0.008;
 
-            // Glow lines
-            ctx.strokeStyle = "rgba(255, 75, 130, " + (nameAlpha * 0.12) + ")";
+            var scale = Math.min(width / 8, 80);
+            var totalW = 6 * scale;
+            var startX = (width - totalW) / 2;
+            var startY = height / 2 - scale;
+
+            // Glow
+            ctx.strokeStyle = "rgba(255, 75, 130, " + (nameAlpha * 0.15) + ")";
             ctx.lineWidth = 8;
             ctx.beginPath();
-            meyliLines.forEach(line => {
-                ctx.moveTo(startX + line[0].x * scale, startY + line[0].y * scale);
-                ctx.lineTo(startX + line[1].x * scale, startY + line[1].y * scale);
-            });
+            for (var m = 0; m < meyliLines.length; m++) {
+                var p1 = meyliLines[m][0];
+                var p2 = meyliLines[m][1];
+                ctx.moveTo(startX + p1.x * scale, startY + p1.y * scale);
+                ctx.lineTo(startX + p2.x * scale, startY + p2.y * scale);
+            }
             ctx.stroke();
 
-            // Core lines
+            // Core
             ctx.strokeStyle = "rgba(255, 75, 130, " + (nameAlpha * 0.8) + ")";
             ctx.lineWidth = 2;
             ctx.beginPath();
-            meyliLines.forEach(line => {
-                ctx.moveTo(startX + line[0].x * scale, startY + line[0].y * scale);
-                ctx.lineTo(startX + line[1].x * scale, startY + line[1].y * scale);
-            });
+            for (var n = 0; n < meyliLines.length; n++) {
+                var q1 = meyliLines[n][0];
+                var q2 = meyliLines[n][1];
+                ctx.moveTo(startX + q1.x * scale, startY + q1.y * scale);
+                ctx.lineTo(startX + q2.x * scale, startY + q2.y * scale);
+            }
             ctx.stroke();
 
             // Vertex stars
-            meyliLines.forEach(line => {
-                [line[0], line[1]].forEach(p => {
-                    const px = startX + p.x * scale;
-                    const py = startY + p.y * scale;
-
-                    // Glow
-                    ctx.fillStyle = "rgba(255, 215, 0, " + (nameAlpha * 0.2) + ")";
-                    ctx.beginPath();
-                    ctx.arc(px, py, 10, 0, Math.PI * 2);
-                    ctx.fill();
-
-                    // Core
-                    ctx.fillStyle = "rgba(255, 255, 255, " + nameAlpha + ")";
-                    ctx.beginPath();
-                    ctx.arc(px, py, 3, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-            });
+            ctx.fillStyle = "rgba(255, 255, 255, " + nameAlpha + ")";
+            for (var v = 0; v < meyliLines.length; v++) {
+                var vp1 = meyliLines[v][0];
+                var vp2 = meyliLines[v][1];
+                ctx.beginPath();
+                ctx.arc(startX + vp1.x * scale, startY + vp1.y * scale, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(startX + vp2.x * scale, startY + vp2.y * scale, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
 
         requestAnimationFrame(draw);
     }
 
-    // ============ CONSTELLATION NODES ============
+    // ===== CONSTELACION SETUP =====
     function setupConstellation() {
-        const paddingX = width * 0.12;
-        const paddingY = height * 0.15;
-        const usableW = width - paddingX * 2;
-        const usableH = height - paddingY * 2;
+        var paddingX = width * 0.12;
+        var paddingY = height * 0.15;
+        var usableW = width - paddingX * 2;
+        var usableH = height - paddingY * 2;
 
-        for (let i = 0; i < letterSteps.length; i++) {
-            const progress = i / (letterSteps.length - 1);
-            const x = paddingX + (usableW * progress);
-
-            let yProgress;
+        for (var i = 0; i < letterSteps.length; i++) {
+            var progress = i / (letterSteps.length - 1);
+            var x = paddingX + (usableW * progress);
+            var yProgress;
             if (i % 2 === 0) {
                 yProgress = 0.15 + (Math.random() * 0.2);
             } else {
                 yProgress = 0.55 + (Math.random() * 0.2);
             }
-            const y = paddingY + (usableH * yProgress);
+            var y = paddingY + (usableH * yProgress);
 
-            const div = document.createElement('div');
+            var div = document.createElement('div');
             div.className = 'constellation-node';
             div.style.left = x + "px";
             div.style.top = y + "px";
 
-            div.addEventListener('click', () => {
-                if (i <= currentNodeIndex && !showMeyliName) {
-                    showModal(i);
-                    if (instruction) instruction.classList.add('hide');
-                }
-            });
+            (function(idx) {
+                div.addEventListener('click', function() {
+                    if (idx <= currentNodeIndex && !showMeyliName) {
+                        showModal(idx);
+                    }
+                });
+            })(i);
 
             nodesContainer.appendChild(div);
-            constellationNodes.push({ x, y, el: div });
+            constellationNodes.push({ x: x, y: y, el: div });
         }
 
-        // Reveal first node with delay for drama
-        setTimeout(() => revealNode(0), 600);
+        setTimeout(function() { revealNode(0); }, 500);
     }
 
     function revealNode(index) {
@@ -344,13 +252,13 @@ document.addEventListener('DOMContentLoaded', () => {
         contentModal.classList.remove('hidden');
 
         if (index === letterSteps.length - 1) {
-            nextBtn.innerHTML = '<span>Cerrar</span> <span>\u2764\uFE0F</span>';
+            nextBtn.innerHTML = "Cerrar \u2764\uFE0F";
         } else {
-            nextBtn.innerHTML = '<span>Siguiente</span> <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+            nextBtn.innerHTML = "Siguiente \uD83C\uDF1F";
         }
     }
 
-    nextBtn.addEventListener('click', () => {
+    nextBtn.addEventListener('click', function() {
         contentModal.classList.add('hidden');
 
         if (currentNodeIndex < constellationNodes.length) {
@@ -361,34 +269,31 @@ document.addEventListener('DOMContentLoaded', () => {
             currentNodeIndex++;
             revealNode(currentNodeIndex);
         } else {
-            setTimeout(() => {
+            setTimeout(function() {
                 showMeyliName = true;
-                frameCount = 0;
-                constellationNodes.forEach(n => {
-                    n.el.style.transition = 'opacity 2s ease';
-                    n.el.style.opacity = '0';
-                });
+                for (var i = 0; i < constellationNodes.length; i++) {
+                    constellationNodes[i].el.style.transition = 'opacity 2s ease';
+                    constellationNodes[i].el.style.opacity = '0';
+                }
             }, 800);
         }
     });
 
-    // ============ START EXPERIENCE ============
-    openBtn.addEventListener('click', () => {
+    // ===== INICIAR =====
+    openBtn.addEventListener('click', function() {
         landingScreen.classList.add('fade-out');
 
-        setTimeout(() => {
+        setTimeout(function() {
             landingScreen.classList.remove('active');
             constellationScreen.classList.add('active');
             resize();
             setupConstellation();
             draw();
-        }, 1200);
+        }, 1000);
 
-        // Play Aladdin music
-        if (ytPlayer && ytPlayer.playVideo) {
-            ytPlayer.setVolume(60);
-            ytPlayer.playVideo();
-        }
+        // Reproducir musica de Aladin via YouTube iframe
+        // autoplay=1 y loop=1 aseguran la reproduccion automatica
+        ytMusic.src = "https://www.youtube.com/embed/hZ1Rb9hC4JY?autoplay=1&loop=1&playlist=hZ1Rb9hC4JY&controls=0&showinfo=0&rel=0&modestbranding=1";
 
         if (typeof gtag === 'function') {
             gtag('event', 'open_letter', {
@@ -398,16 +303,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ============ MUTE CONTROL ============
-    muteBtn.addEventListener('click', () => {
-        if (ytPlayer) {
-            if (isMuted) {
-                ytPlayer.unMute();
-                muteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
-            } else {
-                ytPlayer.mute();
-                muteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
-            }
+    // ===== MUTE =====
+    muteBtn.addEventListener('click', function() {
+        if (isMuted) {
+            ytMusic.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+            muteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
+        } else {
+            ytMusic.contentWindow.postMessage('{"event":"command","func":"mute","args":""}', '*');
+            muteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
         }
         isMuted = !isMuted;
     });
