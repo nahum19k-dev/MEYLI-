@@ -177,9 +177,25 @@ document.addEventListener('DOMContentLoaded', function() {
             div.className = 'constellation-node';
             div.style.left = x + "px";
             div.style.top = y + "px";
+            
+            // Estructura interna de la estrella
+            div.innerHTML = '<div class="star-rays"></div><div class="star-outer"></div><div class="star-inner"></div><div class="star-core"></div>';
+
             (function(idx) {
                 div.addEventListener('click', function() {
-                    if (idx <= currentNodeIndex && !showMeyliName) showModal(idx);
+                    if (idx <= currentNodeIndex && !showMeyliName) {
+                        var zoomOverlay = document.getElementById('star-zoom');
+                        var rect = div.getBoundingClientRect();
+                        
+                        // Efecto flash centrado en la estrella
+                        zoomOverlay.style.background = 'radial-gradient(circle at ' + (rect.left + rect.width/2) + 'px ' + (rect.top + rect.height/2) + 'px, rgba(255,255,255,1) 0%, rgba(255,215,0,0.8) 15%, transparent 60%)';
+                        zoomOverlay.classList.add('active');
+                        zoomOverlay.classList.remove('closing');
+                        
+                        setTimeout(function() {
+                            showModal(idx);
+                        }, 400); // Muestra la carta en el pico del flash
+                    }
                 });
             })(i);
             nodesContainer.appendChild(div);
@@ -194,12 +210,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showModal(idx) {
         modalBody.innerHTML = letterSteps[idx].html;
-        contentModal.classList.remove('hidden');
+        contentModal.classList.add('visible'); // Usando 'visible' ahora, no quitando 'hidden'
         nextBtn.innerHTML = (idx === letterSteps.length - 1) ? "Cerrar \u2764\uFE0F" : "Siguiente \uD83C\uDF1F";
     }
 
     nextBtn.addEventListener('click', function() {
-        contentModal.classList.add('hidden');
+        contentModal.classList.remove('visible');
+        
+        var zoomOverlay = document.getElementById('star-zoom');
+        zoomOverlay.classList.remove('active');
+        zoomOverlay.classList.add('closing');
+        setTimeout(function(){ zoomOverlay.classList.remove('closing'); }, 800);
+
         if (currentNodeIndex < constellationNodes.length) constellationNodes[currentNodeIndex].el.classList.add('visited');
         if (currentNodeIndex < letterSteps.length - 1) {
             currentNodeIndex++;

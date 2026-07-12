@@ -15,26 +15,18 @@ body, html {
 
 .screen {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     transition: opacity 1.5s ease;
 }
+.screen.active { display: flex; opacity: 1; }
+.screen.fade-out { opacity: 0; }
 
-.screen.active {
-    display: flex;
-    opacity: 1;
-}
-
-.screen.fade-out {
-    opacity: 0;
-}
-
+/* ===== LANDING ===== */
 #landing-screen {
     z-index: 10;
     background: radial-gradient(ellipse at center, #302b63, #0f0c29 80%);
@@ -78,7 +70,6 @@ body, html {
     box-shadow: 0 0 25px rgba(255, 75, 130, 0.5);
     transition: all 0.3s ease;
     -webkit-appearance: none;
-    -moz-appearance: none;
     appearance: none;
 }
 
@@ -86,11 +77,9 @@ body, html {
     box-shadow: 0 0 40px rgba(255, 75, 130, 0.8);
     transform: scale(1.05);
 }
+.glow-on-hover:active { transform: scale(0.96); }
 
-.glow-on-hover:active {
-    transform: scale(0.96);
-}
-
+/* ===== CONSTELLATION ===== */
 #constellation-screen {
     z-index: 5;
     background: radial-gradient(ellipse at center, #161e38, #060b19 80%);
@@ -98,72 +87,174 @@ body, html {
 
 #star-canvas {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     z-index: 1;
 }
 
 #nodes-container {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     z-index: 2;
     pointer-events: none;
 }
 
+/* ===== STAR NODES - MEJORADAS ===== */
 .constellation-node {
     position: absolute;
-    width: 30px;
-    height: 30px;
+    width: 50px;
+    height: 50px;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: radial-gradient(circle, #fff, #ffd700 40%, transparent 70%);
-    box-shadow: 0 0 15px 5px rgba(255, 215, 0, 0.5);
     cursor: pointer;
     pointer-events: auto;
     opacity: 0;
-    transition: opacity 1s ease, transform 0.3s ease;
-    animation: pulseStar 2s infinite alternate;
+    transition: opacity 1.2s ease, transform 0.3s ease;
 }
 
-.constellation-node.visible {
-    opacity: 1;
+/* Nucleo brillante */
+.constellation-node .star-core {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 12px; height: 12px;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px 3px #fff;
+    z-index: 3;
 }
 
+/* Halo interior */
+.constellation-node .star-inner {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 24px; height: 24px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255,215,0,0.6), transparent 70%);
+    border-radius: 50%;
+    z-index: 2;
+    animation: pulseInner 2s ease-in-out infinite alternate;
+}
+
+/* Halo exterior */
+.constellation-node .star-outer {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 50px; height: 50px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255,215,0,0.2), transparent 65%);
+    border-radius: 50%;
+    z-index: 1;
+    animation: pulseOuter 3s ease-in-out infinite alternate;
+}
+
+/* Rayos de luz */
+.constellation-node .star-rays {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 40px; height: 40px;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    opacity: 0.6;
+    animation: rotateRays 8s linear infinite;
+}
+
+.constellation-node .star-rays::before,
+.constellation-node .star-rays::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(0deg, transparent 35%, rgba(255,255,255,0.5) 50%, transparent 65%);
+}
+
+.constellation-node .star-rays::before {
+    width: 2px;
+    height: 40px;
+}
+
+.constellation-node .star-rays::after {
+    width: 40px;
+    height: 2px;
+}
+
+.constellation-node.visible { opacity: 1; }
+
+.constellation-node:hover .star-core {
+    box-shadow: 0 0 15px 6px #fff;
+}
+.constellation-node:hover .star-inner {
+    width: 32px; height: 32px;
+}
 .constellation-node:hover {
-    transform: translate(-50%, -50%) scale(1.4);
-    box-shadow: 0 0 30px 10px rgba(255, 215, 0, 0.9);
+    transform: translate(-50%, -50%) scale(1.2);
 }
 
-.constellation-node.visited {
-    background: radial-gradient(circle, #fff, #ff4b82 40%, transparent 70%);
-    box-shadow: 0 0 10px 3px rgba(255, 75, 130, 0.5);
+.constellation-node.visited .star-core {
+    background: #ff4b82;
+    box-shadow: 0 0 8px 3px rgba(255, 75, 130, 0.8);
+}
+.constellation-node.visited .star-inner {
+    background: radial-gradient(circle, rgba(255,75,130,0.4), transparent 70%);
     animation: none;
 }
+.constellation-node.visited .star-outer {
+    background: radial-gradient(circle, rgba(255,75,130,0.15), transparent 65%);
+    animation: none;
+}
+.constellation-node.visited .star-rays { opacity: 0; }
 
-#content-modal {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+@keyframes pulseInner {
+    0% { width: 22px; height: 22px; opacity: 0.8; }
+    100% { width: 30px; height: 30px; opacity: 0.5; }
+}
+@keyframes pulseOuter {
+    0% { width: 45px; height: 45px; opacity: 0.4; }
+    100% { width: 60px; height: 60px; opacity: 0.15; }
+}
+@keyframes rotateRays {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ===== ZOOM FLASH (entrar a la estrella) ===== */
+#star-zoom {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 8;
+    pointer-events: none;
+    opacity: 0;
     transition: opacity 0.5s ease;
 }
 
-#content-modal.hidden {
+#star-zoom.active {
+    opacity: 1;
+}
+
+#star-zoom.closing {
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+
+/* ===== MODAL (dentro de la estrella) ===== */
+#content-modal {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 12;
     opacity: 0;
     pointer-events: none;
+    transition: opacity 0.6s ease 0.3s;
+}
+
+#content-modal.visible {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .glass-card {
@@ -179,12 +270,12 @@ body, html {
     overflow-y: auto;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
     text-align: center;
-    transform: scale(0.9);
+    transform: scale(0.85);
     opacity: 0;
-    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s ease;
+    transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s, opacity 0.5s ease 0.4s;
 }
 
-#content-modal:not(.hidden) .glass-card {
+#content-modal.visible .glass-card {
     transform: scale(1);
     opacity: 1;
 }
@@ -204,8 +295,7 @@ body, html {
 }
 
 .meyli-photo {
-    width: 155px;
-    height: 155px;
+    width: 155px; height: 155px;
     object-fit: cover;
     border-radius: 50%;
     border: 3px solid #ff4b82;
@@ -225,7 +315,6 @@ body, html {
     font-weight: 500;
     transition: all 0.3s ease;
     -webkit-appearance: none;
-    -moz-appearance: none;
     appearance: none;
 }
 
@@ -235,10 +324,10 @@ body, html {
     transform: translateY(-2px);
 }
 
+/* ===== MUSIC CONTROL ===== */
 .music-control {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 20px; right: 20px;
     z-index: 20;
 }
 
@@ -254,10 +343,8 @@ body, html {
     justify-content: center;
     transition: all 0.3s ease;
     -webkit-appearance: none;
-    -moz-appearance: none;
     appearance: none;
 }
-
 #mute-btn:hover {
     color: #ff4b82;
     background: rgba(255, 255, 255, 0.2);
@@ -268,15 +355,11 @@ body, html {
     50% { transform: translateY(-10px); }
 }
 
-@keyframes pulseStar {
-    0% { box-shadow: 0 0 10px 3px rgba(255, 215, 0, 0.4); }
-    100% { box-shadow: 0 0 25px 8px rgba(255, 215, 0, 0.8); }
-}
-
 @media (max-width: 768px) {
     .title { font-size: 3.5rem; }
     .glass-card { padding: 35px 22px; }
     .letter-content p { font-size: 1.1rem; }
     .meyli-photo { width: 130px; height: 130px; }
     .glow-on-hover { width: 230px; height: 50px; font-size: 1.05rem; }
+    .constellation-node { width: 40px; height: 40px; }
 }
