@@ -42,13 +42,39 @@ document.addEventListener('DOMContentLoaded', function() {
     ];
 
     function resize() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
+        var rect = canvas.getBoundingClientRect();
+        width = rect.width || window.innerWidth;
+        height = rect.height || window.innerHeight;
+        
+        var dpr = window.devicePixelRatio || 1;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        
         initBgStars();
     }
-    window.addEventListener('resize', resize);
+    
+    var prevWidth = window.innerWidth;
+    var prevHeight = window.innerHeight;
+    
+    window.addEventListener('resize', function() {
+        var oldWidth = prevWidth || window.innerWidth;
+        var oldHeight = prevHeight || window.innerHeight;
+        resize();
+        
+        // Si ya hay estrellas, reposicionarlas proporcionalmente
+        if (constellationNodes && constellationNodes.length > 0 && currentNodeIndex !== -1) {
+            for (var i = 0; i < constellationNodes.length; i++) {
+                var node = constellationNodes[i];
+                node.x = (node.x / oldWidth) * width;
+                node.y = (node.y / oldHeight) * height;
+                node.el.style.left = node.x + "px";
+                node.el.style.top = node.y + "px";
+            }
+        }
+        prevWidth = width;
+        prevHeight = height;
+    });
 
     function initBgStars() {
         bgStars = [];
