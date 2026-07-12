@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Estrellas de fondo
         bgStars.forEach(star => {
-            ctx.fillStyle = \`rgba(255, 255, 255, \${star.alpha})\`;
+            ctx.fillStyle = "rgba(255, 255, 255, " + star.alpha + ")";
             ctx.beginPath();
             ctx.arc(star.x, star.y, star.r, 0, Math.PI*2);
             ctx.fill();
@@ -131,8 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const div = document.createElement('div');
             div.className = 'constellation-node';
-            div.style.left = \`\${x}px\`;
-            div.style.top = \`\${y}px\`;
+            div.style.left = x + "px";
+            div.style.top = y + "px";
             
             div.addEventListener('click', () => {
                 if (i <= currentNodeIndex) {
