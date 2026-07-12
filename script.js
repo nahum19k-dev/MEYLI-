@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var currentNodeIndex = 0;
     var showMeyliName = false;
     var nameAlpha = 0;
+    var explosionParticles = [];
+    var explosionFlash = 0;
 
     var letterSteps = [
         { html: '<div class="photo-container"><img src="meyli.jpg" alt="Meyli" class="meyli-photo"></div><p>Hay personas que llegan a tu vida en los momentos m\u00e1s inesperados... como en una entrevista de trabajo donde supuestamente uno deber\u00eda estar concentrado en otras cosas. Pero entonces alguien te habla, te pregunta algo, y sin darte cuenta ya capt\u00f3 toda tu atenci\u00f3n.</p>' },
@@ -126,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 ctx.stroke();
             }
         } else {
-            if (nameAlpha < 1) nameAlpha += 0.008;
+            if (nameAlpha < 1) nameAlpha += 0.006; // Un poco mas lento
             var scale = Math.min(width / 8, 80);
             var totalW = 6 * scale;
             var sx = (width - totalW) / 2;
@@ -160,6 +162,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 ctx.fill();
             }
         }
+
+        // Renderizar Explosion
+        if (explosionFlash > 0) {
+            var rad = (1.2 - explosionFlash) * 500;
+            var grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, rad);
+            grad.addColorStop(0, "rgba(255, 255, 255, " + explosionFlash + ")");
+            grad.addColorStop(0.3, "rgba(255, 75, 130, " + (explosionFlash * 0.8) + ")");
+            grad.addColorStop(1, "rgba(0, 0, 0, 0)");
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(width/2, height/2, rad, 0, Math.PI * 2);
+            ctx.fill();
+            explosionFlash -= 0.025;
+        }
+
+        for (i = explosionParticles.length - 1; i >= 0; i--) {
+            var p = explosionParticles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vx *= 0.94; // Friccion
+            p.vy *= 0.94;
+            p.alpha -= 0.015;
+            if (p.alpha <= 0) { explosionParticles.splice(i, 1); continue; }
+            
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        ctx.globalAlpha = 1.0;
 
         requestAnimationFrame(draw);
     }
@@ -236,13 +269,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentNodeIndex++;
                 revealNode(currentNodeIndex);
             } else {
+                // Secuencia Final: Juntar estrellas y explotar
+                var cx = width / 2;
+                var cy = height / 2;
+                
+                // 1. Juntar todas las estrellas en el centro
+                for (var i = 0; i < constellationNodes.length; i++) {
+                    var el = constellationNodes[i].el;
+                    el.style.transition = 'left 1.2s cubic-bezier(0.5, 0, 0.75, 0), top 1.2s cubic-bezier(0.5, 0, 0.75, 0), transform 1.2s ease, opacity 0.5s ease';
+                    el.style.left = cx + "px";
+                    el.style.top = cy + "px";
+                    el.style.transform = "translate(-50%, -50%) scale(0.5)"; // se hacen peque\u00f1as al juntarse
+                }
+                
+                // Borrar las l\u00edneas de la constelacion ocultandolas logicamente
+                currentNodeIndex = -1; // Esto evita que se sigan dibujando las lineas en draw()
+                
+                // 2. Explotar!
                 setTimeout(function() {
-                    showMeyliName = true;
+                    // Ocultar los nodos DOM originales
                     for (var i = 0; i < constellationNodes.length; i++) {
-                        constellationNodes[i].el.style.transition = 'opacity 2s ease';
                         constellationNodes[i].el.style.opacity = '0';
+                        constellationNodes[i].el.style.display = 'none';
                     }
-                }, 800);
+                    
+                    // Iniciar destello flash y particulas
+                    explosionFlash = 1.0;
+                    for (var k = 0; k < 120; k++) {
+                        var angle = Math.random() * Math.PI * 2;
+                        var speed = Math.random() * 20 + 5;
+                        explosionParticles.push({
+                            x: cx, y: cy,
+                            vx: Math.cos(angle) * speed,
+                            vy: Math.sin(angle) * speed,
+                            alpha: 1,
+                            color: (Math.random() > 0.5) ? '#ff4b82' : '#ffffff',
+                            size: Math.random() * 4 + 1
+                        });
+                    }
+                    
+                    // 3. Mostrar el nombre de Meyli
+                    showMeyliName = true;
+                }, 1200); // Esperar a que se junten
             }
         }, 1000);
     });
