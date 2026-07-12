@@ -4,47 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Para ti</title>
-    
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KF5WB2ENP1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-KF5WB2ENP1');
-    </script>
-
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Pantalla de inicio -->
     <div id="landing-screen" class="screen active">
         <div class="landing-content">
             <h1 class="title">Para Meyli...</h1>
-            <p class="subtitle">Una peque&ntilde;a constelaci&oacute;n de pensamientos</p>
+            <p class="subtitle">Una constelaci&oacute;n de pensamientos</p>
             <button id="open-btn" class="glow-on-hover">Comenzar el Viaje &#10024;</button>
         </div>
     </div>
 
-    <!-- Contenedor principal -->
     <div id="constellation-screen" class="screen">
         <canvas id="star-canvas"></canvas>
-        
         <div class="music-control">
-            <button id="mute-btn" aria-label="Silenciar">
+            <button id="mute-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
             </button>
         </div>
-
         <div id="nodes-container"></div>
-        
-        <!-- Modal -->
         <div id="content-modal" class="hidden">
             <div class="glass-card">
                 <div id="modal-body" class="letter-content"></div>
@@ -53,16 +35,9 @@
         </div>
     </div>
 
-    <!-- Musica de Aladin oculta via iframe de YouTube -->
-    <iframe id="yt-music" 
-        width="0" height="0" 
-        src="" 
-        frameborder="0" 
-        allow="autoplay; encrypted-media" 
-        style="position:absolute;width:0;height:0;border:0;overflow:hidden;"
-        allowfullscreen>
-    </iframe>
-
+    <!-- YouTube Player API -->
+    <div id="yt-player" style="position:fixed;top:-200px;left:-200px;width:160px;height:120px;opacity:0.01;pointer-events:none;"></div>
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="script.js"></script>
 </body>
 </html>
