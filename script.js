@@ -2,21 +2,18 @@
 let ytPlayer;
 function onYouTubeIframeAPIReady() {
     ytPlayer = new YT.Player('youtube-player', {
-        height: '0',
-        width: '0',
-        videoId: '7maJOI3QMu0', // Piano romántico (Yiruma - River Flows in You o similar)
+        height: '10',
+        width: '10',
+        videoId: '1zxEqdmZpFA', // Chopin Spring Waltz (very romantic and allows embedding)
         playerVars: {
             'autoplay': 0,
+            'controls': 0,
+            'showinfo': 0,
+            'rel': 0,
             'loop': 1,
-            'playlist': '7maJOI3QMu0'
-        },
-        events: {
-            'onReady': onPlayerReady
+            'playlist': '1zxEqdmZpFA'
         }
     });
-}
-function onPlayerReady(event) {
-    // Listo para reproducir
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -248,10 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMeyliName = true;
                 // Ocultamos los nodos normales
                 constellationNodes.forEach(n => n.el.style.opacity = '0');
-                
-                // Mostrar el texto mágico final
-                const finalText = document.getElementById('final-text-container');
-                if(finalText) finalText.classList.remove('hidden');
             }, 1000);
         }
     });
