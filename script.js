@@ -1,8 +1,28 @@
+// Configuración de YouTube IFrame API
+let ytPlayer;
+function onYouTubeIframeAPIReady() {
+    ytPlayer = new YT.Player('youtube-player', {
+        height: '0',
+        width: '0',
+        videoId: '7maJOI3QMu0', // Piano romántico (Yiruma - River Flows in You o similar)
+        playerVars: {
+            'autoplay': 0,
+            'loop': 1,
+            'playlist': '7maJOI3QMu0'
+        },
+        events: {
+            'onReady': onPlayerReady
+        }
+    });
+}
+function onPlayerReady(event) {
+    // Listo para reproducir
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const openBtn = document.getElementById('open-btn');
     const landingScreen = document.getElementById('landing-screen');
     const constellationScreen = document.getElementById('constellation-screen');
-    const bgMusic = document.getElementById('bg-music');
     const muteBtn = document.getElementById('mute-btn');
     const nodesContainer = document.getElementById('nodes-container');
     const canvas = document.getElementById('star-canvas');
@@ -16,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let bgStars = [];
     let constellationNodes = [];
     let currentNodeIndex = 0;
+    let showMeyliName = false;
     
     // Contenido de la carta (6 pasos)
     const letterSteps = [
@@ -45,6 +66,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     ];
 
+    // Constelación final "MEYLI" (Segmentos de líneas)
+    const meyliLines = [
+        // M
+        [{x:0, y:2}, {x:0, y:0}], [{x:0, y:0}, {x:0.5, y:1}], [{x:0.5, y:1}, {x:1, y:0}], [{x:1, y:0}, {x:1, y:2}],
+        // E
+        [{x:1.5, y:0}, {x:2.5, y:0}], [{x:1.5, y:0}, {x:1.5, y:1}], [{x:1.5, y:1}, {x:2.5, y:1}], [{x:1.5, y:1}, {x:1.5, y:2}], [{x:1.5, y:2}, {x:2.5, y:2}],
+        // Y
+        [{x:3, y:0}, {x:3.5, y:1}], [{x:4, y:0}, {x:3.5, y:1}], [{x:3.5, y:1}, {x:3.5, y:2}],
+        // L
+        [{x:4.5, y:0}, {x:4.5, y:2}], [{x:4.5, y:2}, {x:5.5, y:2}],
+        // I
+        [{x:6, y:0}, {x:6, y:2}]
+    ];
+
     // Resize canvas
     function resize() {
         width = window.innerWidth;
@@ -70,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Dibujar frame
+    let nameAlpha = 0;
     function draw() {
         ctx.clearRect(0, 0, width, height);
         
@@ -84,48 +120,78 @@ document.addEventListener('DOMContentLoaded', () => {
             if(star.alpha > 1) star.alpha = 1;
         });
 
-        // Dibujar líneas de constelación
-        ctx.beginPath();
-        ctx.strokeStyle = "rgba(255, 215, 0, 0.6)";
-        ctx.lineWidth = 2;
-        ctx.setLineDash([5, 5]); // Línea punteada
-        
-        for (let i = 0; i <= currentNodeIndex; i++) {
-            if (i >= letterSteps.length) break;
+        if (!showMeyliName) {
+            // Dibujar líneas de constelación normal
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(255, 215, 0, 0.6)";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
             
-            const node = constellationNodes[i];
-            // Animar el dibujo de la línea a la estrella actual
-            if (i > 0) {
-                const prevNode = constellationNodes[i-1];
-                ctx.moveTo(prevNode.x, prevNode.y);
-                ctx.lineTo(node.x, node.y);
+            for (let i = 0; i <= currentNodeIndex; i++) {
+                if (i >= letterSteps.length) break;
+                
+                const node = constellationNodes[i];
+                if (i > 0) {
+                    const prevNode = constellationNodes[i-1];
+                    ctx.moveTo(prevNode.x, prevNode.y);
+                    ctx.lineTo(node.x, node.y);
+                }
             }
+            ctx.stroke();
+            ctx.setLineDash([]);
+        } else {
+            // Dibujar el nombre MEYLI en estrellas
+            if (nameAlpha < 1) nameAlpha += 0.01;
+            
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(255, 75, 130, " + nameAlpha + ")";
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            
+            const scale = Math.min(width / 8, 80); // Tamaño responsive
+            const totalWidth = 6 * scale;
+            const startX = (width - totalWidth) / 2;
+            const startY = height / 2 - scale;
+
+            meyliLines.forEach(line => {
+                const p1 = line[0];
+                const p2 = line[1];
+                ctx.moveTo(startX + p1.x * scale, startY + p1.y * scale);
+                ctx.lineTo(startX + p2.x * scale, startY + p2.y * scale);
+                
+                // Dibujar estrellitas en los vértices
+                ctx.fillStyle = "rgba(255, 215, 0, " + nameAlpha + ")";
+                ctx.beginPath();
+                ctx.arc(startX + p1.x * scale, startY + p1.y * scale, 4, 0, Math.PI*2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(startX + p2.x * scale, startY + p2.y * scale, 4, 0, Math.PI*2);
+                ctx.fill();
+                
+                ctx.beginPath(); // Reset para que la línea continúe sin rellenar todo
+            });
+            ctx.stroke();
+            ctx.setLineDash([]);
         }
-        ctx.stroke();
-        ctx.setLineDash([]);
 
         requestAnimationFrame(draw);
     }
 
-    // Configurar los nodos de la constelación (estrellas clickeables)
     function setupConstellation() {
         const paddingX = width * 0.15;
         const paddingY = height * 0.15;
         const usableW = width - paddingX * 2;
         const usableH = height - paddingY * 2;
         
-        // Distribuimos los nodos visualmente en zig-zag suave
         for(let i = 0; i < letterSteps.length; i++) {
-            // Un patrón en forma de M o W (ejemplo)
-            const progress = i / (letterSteps.length - 1); // 0 a 1
+            const progress = i / (letterSteps.length - 1);
             const x = paddingX + (usableW * progress);
             
-            // Alternamos la Y para hacer un zig-zag
             let yProgress;
             if (i % 2 === 0) {
-                yProgress = 0.2 + (Math.random() * 0.2); // Arriba
+                yProgress = 0.2 + (Math.random() * 0.2);
             } else {
-                yProgress = 0.6 + (Math.random() * 0.2); // Abajo
+                yProgress = 0.6 + (Math.random() * 0.2);
             }
             const y = paddingY + (usableH * yProgress);
 
@@ -135,17 +201,15 @@ document.addEventListener('DOMContentLoaded', () => {
             div.style.top = y + "px";
             
             div.addEventListener('click', () => {
-                if (i <= currentNodeIndex) {
+                if (i <= currentNodeIndex && !showMeyliName) {
                     showModal(i);
                 }
             });
 
             nodesContainer.appendChild(div);
-            
             constellationNodes.push({x, y, el: div});
         }
         
-        // Mostrar el primer nodo
         revealNode(0);
     }
 
@@ -159,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modalBody.innerHTML = letterSteps[index].html;
         contentModal.classList.remove('hidden');
         
-        // Cambiamos el texto del botón en el último paso
         if (index === letterSteps.length - 1) {
             nextBtn.innerText = "Cerrar ❤️";
         } else {
@@ -170,15 +233,20 @@ document.addEventListener('DOMContentLoaded', () => {
     nextBtn.addEventListener('click', () => {
         contentModal.classList.add('hidden');
         
-        // Marcar nodo actual como visitado
         if (currentNodeIndex < constellationNodes.length) {
             constellationNodes[currentNodeIndex].el.classList.add('visited');
         }
         
-        // Avanzar la constelación si fue el nodo más reciente
         if (currentNodeIndex < letterSteps.length - 1) {
             currentNodeIndex++;
             revealNode(currentNodeIndex);
+        } else {
+            // Es el último paso. Mostramos el nombre MEYLI!
+            setTimeout(() => {
+                showMeyliName = true;
+                // Ocultamos los nodos normales
+                constellationNodes.forEach(n => n.el.style.opacity = '0');
+            }, 1000);
         }
     });
 
@@ -194,8 +262,10 @@ document.addEventListener('DOMContentLoaded', () => {
             draw();
         }, 1000);
 
-        bgMusic.volume = 0.5;
-        bgMusic.play().catch(e => console.log("Audio autoplay blocked", e));
+        // Reproducir música de YouTube
+        if (ytPlayer && ytPlayer.playVideo) {
+            ytPlayer.playVideo();
+        }
         
         if (typeof gtag === 'function') {
             gtag('event', 'open_letter', {
@@ -207,11 +277,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Control de volumen
     muteBtn.addEventListener('click', () => {
+        if (ytPlayer && ytPlayer.isMuted) {
+            if (isMuted) {
+                ytPlayer.unMute();
+            } else {
+                ytPlayer.mute();
+            }
+        }
+        
         if (isMuted) {
-            bgMusic.muted = false;
             muteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
         } else {
-            bgMusic.muted = true;
             muteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
         }
         isMuted = !isMuted;

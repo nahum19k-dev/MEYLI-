@@ -55,11 +55,9 @@
         </div>
     </div>
 
-    <!-- Audio de fondo con referrerpolicy para evitar bloqueos 403 -->
-    <audio id="bg-music" loop crossorigin="anonymous" referrerpolicy="no-referrer">
-        <source src="https://cdn.pixabay.com/download/audio/2022/01/21/audio_31743c58be.mp3?filename=romantic-piano-112135.mp3" type="audio/mpeg">
-        Tu navegador no soporta el elemento de audio.
-    </audio>
+    <!-- Contenedor oculto para la música de YouTube -->
+    <div id="youtube-player" style="display:none;"></div>
+    <script src="https://www.youtube.com/iframe_api"></script>
 
     <script src="script.js"></script>
 </body>
