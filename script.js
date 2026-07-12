@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     var modalBody = document.getElementById('modal-body');
     var nextBtn = document.getElementById('next-btn');
     var bgMusic = document.getElementById('bg-music');
-    var zoomContainer = document.getElementById('zoom-container');
 
     var isMuted = false;
     var width = 0;
@@ -178,24 +177,11 @@ document.addEventListener('DOMContentLoaded', function() {
             div.className = 'constellation-node';
             div.style.left = x + "px";
             div.style.top = y + "px";
-            
-            (function(idx, posX, posY) {
+            (function(idx) {
                 div.addEventListener('click', function() {
-                    if (idx <= currentNodeIndex && !showMeyliName) {
-                        // Zoom 3D real
-                        var ox = (posX / width) * 100;
-                        var oy = (posY / height) * 100;
-                        zoomContainer.style.transformOrigin = ox + "% " + oy + "%";
-                        zoomContainer.style.transform = "scale(8)";
-                        zoomContainer.style.opacity = "0.2"; // Oscurecer el fondo al acercarse
-                        
-                        setTimeout(function() {
-                            showModal(idx);
-                        }, 800);
-                    }
+                    if (idx <= currentNodeIndex && !showMeyliName) showModal(idx);
                 });
-            })(i, x, y);
-            
+            })(i);
             nodesContainer.appendChild(div);
             constellationNodes.push({ x: x, y: y, el: div });
         }
@@ -214,26 +200,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     nextBtn.addEventListener('click', function() {
         contentModal.classList.add('hidden');
-        
-        // Volver del Zoom 3D
-        zoomContainer.style.transform = "scale(1)";
-        zoomContainer.style.opacity = "1";
-
-        setTimeout(function() {
-            if (currentNodeIndex < constellationNodes.length) constellationNodes[currentNodeIndex].el.classList.add('visited');
-            if (currentNodeIndex < letterSteps.length - 1) {
-                currentNodeIndex++;
-                revealNode(currentNodeIndex);
-            } else {
-                setTimeout(function() {
-                    showMeyliName = true;
-                    for (var i = 0; i < constellationNodes.length; i++) {
-                        constellationNodes[i].el.style.transition = 'opacity 2s ease';
-                        constellationNodes[i].el.style.opacity = '0';
-                    }
-                }, 800);
-            }
-        }, 1000); // Esperar a que termine el zoom out antes de revelar la siguiente
+        if (currentNodeIndex < constellationNodes.length) constellationNodes[currentNodeIndex].el.classList.add('visited');
+        if (currentNodeIndex < letterSteps.length - 1) {
+            currentNodeIndex++;
+            revealNode(currentNodeIndex);
+        } else {
+            setTimeout(function() {
+                showMeyliName = true;
+                for (var i = 0; i < constellationNodes.length; i++) {
+                    constellationNodes[i].el.style.transition = 'opacity 2s ease';
+                    constellationNodes[i].el.style.opacity = '0';
+                }
+            }, 800);
+        }
     });
 
     // ===== INICIAR =====
@@ -247,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
             draw();
         }, 1000);
 
-        // Reproducir musica
+        // Reproducir musica - simple y directo
         bgMusic.volume = 0.5;
         bgMusic.play().catch(function(e) {
             console.log("Audio play error:", e);
