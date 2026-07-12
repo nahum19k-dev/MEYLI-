@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Para Meyli 💌</title>
+    <title>Para ti 💌</title>
     
     <!-- Google Analytics - ID de medición -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KF5WB2ENP1"></script>
@@ -29,50 +29,34 @@
     <div id="landing-screen" class="screen active">
         <div class="landing-content">
             <h1 class="title">Para Meyli...</h1>
-            <p class="subtitle">Tengo algo que decirte</p>
-            <button id="open-btn" class="glow-on-hover">Abrir Carta 💌</button>
+            <p class="subtitle">Una pequeña constelación de pensamientos</p>
+            <button id="open-btn" class="glow-on-hover">Comenzar el Viaje ✨</button>
         </div>
     </div>
 
-    <!-- Contenedor principal de la carta -->
-    <div id="letter-screen" class="screen">
-        <!-- Elementos decorativos animados en el fondo -->
-        <div class="background-particles" id="particles"></div>
+    <!-- Contenedor principal de la constelación -->
+    <div id="constellation-screen" class="screen">
+        <canvas id="star-canvas"></canvas>
         
-        <div class="letter-container">
+        <div class="music-control">
+            <button id="mute-btn" aria-label="Silenciar música">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            </button>
+        </div>
+
+        <div id="nodes-container"></div>
+        
+        <!-- Modal para el texto de la carta -->
+        <div id="content-modal" class="hidden">
             <div class="glass-card">
-                <div class="music-control">
-                    <button id="mute-btn" aria-label="Silenciar música">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-volume-2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                    </button>
-                </div>
-
-                <div class="letter-content">
-                    <div class="photo-container fade-in-text delay-1">
-                        <!-- Asegúrate de guardar la foto de Meyli en la misma carpeta como 'meyli.jpg' -->
-                        <img src="meyli.jpg" alt="Meyli" class="meyli-photo">
-                    </div>
-
-                    <p class="fade-in-text delay-2">Hay personas que llegan a tu vida en los momentos más inesperados... como en una entrevista de trabajo donde supuestamente uno debería estar concentrado en otras cosas. Pero entonces alguien te habla, te pregunta algo, y sin darte cuenta ya captó toda tu atención.</p>
-                    
-                    <p class="fade-in-text delay-3">Lo primero que noté fueron tus ojos. Esos ojos grandes y llenos de ternura que tienen algo difícil de explicar... no sé si es la forma en que miran o simplemente lo que hay detrás de ellos, pero desde ese momento algo me dijo que valía la pena conocerte mejor.</p>
-                    
-                    <p class="fade-in-text delay-4">Y mientras más te conozco, más confirmo que detrás de esa mirada hay una persona disciplinada, inteligente, segura de sí misma, que se levanta a las 6am a cycling sin falta, que almuerza y muere 😂, que sufre con las películas sangrientas pero ama las románticas, que tiene buen gusto para la comida porque el saltado no falla, y que hace que las conversaciones no quieran terminar... incluso cuando ya son las 4am y ambos deberíamos estar durmiendo 😏</p>
-                    
-                    <p class="fade-in-text delay-5">Hablar contigo se siente como hablar con alguien que conoces de toda la vida. Hay una amabilidad en ti que no es común, algo genuino que hace que las horas pasen sin que uno se dé cuenta... y no me arrepiento para nada 😏</p>
-                    
-                    <p class="fade-in-text delay-6">No sé exactamente qué es esto todavía, pero sí sé que hay algo en ti que me genera curiosidad, que me hace querer seguir descubriendo más... y eso no le pasa a cualquiera.</p>
-                    
-                    <p class="fade-in-text delay-7">Así que solo quería que supieras que me importas, que disfruto cada conversación contigo, y que me gustaría seguir conociéndote... en persona, sin pantallas de por medio 😊</p>
-                </div>
+                <div id="modal-body" class="letter-content"></div>
+                <button id="next-btn" class="next-btn">Siguiente 🌟</button>
             </div>
         </div>
     </div>
 
-    <!-- Audio de fondo (Reemplazar el src con una canción de tu elección) -->
-    <!-- Por ahora usa un audio libre de derechos como placeholder romántico -->
-    <audio id="bg-music" loop>
-        <!-- Reemplaza este enlace con tu propio archivo de música (ej. 'musica.mp3') -->
+    <!-- Audio de fondo con referrerpolicy para evitar bloqueos 403 -->
+    <audio id="bg-music" loop crossorigin="anonymous" referrerpolicy="no-referrer">
         <source src="https://cdn.pixabay.com/download/audio/2022/01/21/audio_31743c58be.mp3?filename=romantic-piano-112135.mp3" type="audio/mpeg">
         Tu navegador no soporta el elemento de audio.
     </audio>
