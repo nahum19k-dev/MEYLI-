@@ -207,64 +207,74 @@ body, html {
 }
 
 .glass-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 40px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 25px;
+    padding: 45px 35px;
     width: 90%;
     max-width: 600px;
     max-height: 80vh;
     overflow-y: auto;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 75, 130, 0.2);
     text-align: center;
-    transform: scale(0.9);
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.6s ease;
+    opacity: 0;
 }
 
 #content-modal:not(.hidden) .glass-card {
-    transform: scale(1);
+    transform: scale(1) translateY(0);
+    opacity: 1;
 }
 
 .letter-content p {
-    font-size: 1.2rem;
-    line-height: 1.8;
-    color: var(--text-primary);
+    font-size: 1.25rem;
+    line-height: 1.9;
+    color: rgba(255, 255, 255, 0.95);
     font-weight: 300;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: 0.5px;
 }
 
 .photo-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
 .meyli-photo {
-    width: 160px;
-    height: 160px;
+    width: 170px;
+    height: 170px;
     object-fit: cover;
     border-radius: 50%;
-    border: 3px solid var(--accent);
-    box-shadow: 0 0 25px rgba(255, 75, 130, 0.6);
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 30px rgba(255, 75, 130, 0.5), inset 0 0 20px rgba(255,255,255,0.5);
+    padding: 4px;
+    background: linear-gradient(45deg, #ff4b82, #ff8c42);
 }
 
 .next-btn {
-    margin-top: 20px;
-    padding: 10px 30px;
-    border: 1px solid var(--glass-border);
-    background: rgba(255, 255, 255, 0.1);
+    margin-top: 25px;
+    padding: 12px 35px;
+    border: none;
+    background: linear-gradient(45deg, rgba(255, 75, 130, 0.6), rgba(255, 75, 130, 0.3));
     color: white;
-    border-radius: 20px;
+    border-radius: 30px;
     cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.3s;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 15px rgba(255, 75, 130, 0.3);
+    border: 1px solid rgba(255,255,255,0.2);
 }
 
 .next-btn:hover {
-    background: var(--accent);
-    box-shadow: 0 0 15px var(--accent);
+    background: linear-gradient(45deg, rgba(255, 75, 130, 0.9), rgba(255, 75, 130, 0.6));
+    box-shadow: 0 6px 20px rgba(255, 75, 130, 0.6);
+    transform: translateY(-2px);
 }
 
 /* Animations */
@@ -305,9 +315,49 @@ body, html {
     background: rgba(255, 255, 255, 0.2);
 }
 
+/* Final Text Container */
+#final-text-container {
+    position: absolute;
+    bottom: 10%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+    transition: opacity 2s ease-in-out;
+}
+
+#final-text-container.hidden {
+    opacity: 0;
+}
+
+.final-name {
+    font-family: 'Dancing Script', cursive;
+    font-size: 6rem;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(255, 75, 130, 0.8), 0 0 10px rgba(255, 255, 255, 0.8);
+    margin-bottom: 5px;
+    animation: floatName 4s ease-in-out infinite;
+}
+
+.final-message {
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 2px;
+}
+
+@keyframes floatName {
+    0% { transform: translateY(0px); text-shadow: 0 0 30px rgba(255, 75, 130, 0.8), 0 0 10px rgba(255, 255, 255, 0.8); }
+    50% { transform: translateY(-10px); text-shadow: 0 0 50px rgba(255, 75, 130, 1), 0 0 20px rgba(255, 215, 0, 0.8); }
+    100% { transform: translateY(0px); text-shadow: 0 0 30px rgba(255, 75, 130, 0.8), 0 0 10px rgba(255, 255, 255, 0.8); }
+}
+
 @media (max-width: 768px) {
-    .glass-card { padding: 30px 20px; }
+    .glass-card { padding: 35px 25px; }
     .title { font-size: 3.5rem; }
-    .letter-content p { font-size: 1.1rem; }
-    .meyli-photo { width: 130px; height: 130px; }
+    .letter-content p { font-size: 1.15rem; }
+    .meyli-photo { width: 140px; height: 140px; }
+    .final-name { font-size: 4.5rem; }
+    .final-message { font-size: 1.1rem; }
 }

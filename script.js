@@ -248,6 +248,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMeyliName = true;
                 // Ocultamos los nodos normales
                 constellationNodes.forEach(n => n.el.style.opacity = '0');
+                
+                // Mostrar el texto mágico final
+                const finalText = document.getElementById('final-text-container');
+                if(finalText) finalText.classList.remove('hidden');
             }, 1000);
         }
     });
