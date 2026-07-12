@@ -194,6 +194,26 @@ body, html {
     animation: none;
 }
 
+/* Guía de click */
+.click-guide {
+    position: absolute;
+    color: #ff4b82;
+    font-size: 1.1rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    text-shadow: 0 0 15px rgba(255, 75, 130, 0.8), 0 0 5px rgba(255, 255, 255, 0.8);
+    white-space: nowrap;
+    animation: pointBounce 1s infinite alternate;
+    z-index: 5;
+    font-weight: 500;
+}
+
+@keyframes pointBounce {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(8px); }
+}
+
 #content-modal {
     position: absolute;
     top: 0;

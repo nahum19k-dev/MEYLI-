@@ -181,6 +181,11 @@ document.addEventListener('DOMContentLoaded', function() {
             (function(idx, posX, posY) {
                 div.addEventListener('click', function() {
                     if (idx <= currentNodeIndex && !showMeyliName) {
+                        if (idx === 0) {
+                            var guide = document.getElementById('click-guide');
+                            if (guide) guide.style.opacity = "0";
+                        }
+                        
                         // Zoom 3D - Fade out to prevent ugly blob
                         var ox = (posX / width) * 100;
                         var oy = (posY / height) * 100;
@@ -197,7 +202,15 @@ document.addEventListener('DOMContentLoaded', function() {
             nodesContainer.appendChild(div);
             constellationNodes.push({ x: x, y: y, el: div });
         }
-        setTimeout(function() { revealNode(0); }, 500);
+        setTimeout(function() { 
+            revealNode(0);
+            var guide = document.getElementById('click-guide');
+            if (guide && constellationNodes[0]) {
+                guide.style.left = (constellationNodes[0].x + 25) + "px";
+                guide.style.top = (constellationNodes[0].y - 12) + "px";
+                guide.style.opacity = "1";
+            }
+        }, 1500); // Aparecer un ratito despues
     }
 
     function revealNode(idx) {
@@ -234,6 +247,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1000);
     });
 
+    function createMeteorShower() {
+        for (var i = 0; i < 40; i++) {
+            shootingStars.push({
+                x: Math.random() * width * 1.5 - width * 0.2,
+                y: Math.random() * height * -1.5,
+                len: Math.random() * 100 + 50,
+                spd: Math.random() * 25 + 15, // Muy r\u00e1pidas
+                alpha: 1
+            });
+        }
+    }
+
     // ===== INICIAR =====
     openBtn.addEventListener('click', function() {
         landingScreen.classList.add('fade-out');
@@ -243,6 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
             resize();
             setupConstellation();
             draw();
+            createMeteorShower(); // Disparar la lluvia de meteoritos!
         }, 1000);
 
         // Reproducir musica - simple y directo
