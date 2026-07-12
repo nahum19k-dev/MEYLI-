@@ -1,31 +1,3 @@
-// ===== YOUTUBE MUSIC (Aladin - A Whole New World) =====
-var ytPlayer = null;
-var ytReady = false;
-
-function onYouTubeIframeAPIReady() {
-    ytPlayer = new YT.Player('yt-player', {
-        width: '160',
-        height: '120',
-        videoId: 't9-CS2v8wcc',
-        playerVars: {
-            autoplay: 0,
-            controls: 0,
-            loop: 1,
-            playlist: 't9-CS2v8wcc',
-            modestbranding: 1,
-            rel: 0,
-            showinfo: 0,
-            origin: window.location.origin
-        },
-        events: {
-            onReady: function() {
-                ytReady = true;
-            }
-        }
-    });
-}
-
-// ===== MAIN =====
 document.addEventListener('DOMContentLoaded', function() {
     var openBtn = document.getElementById('open-btn');
     var landingScreen = document.getElementById('landing-screen');
@@ -37,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var contentModal = document.getElementById('content-modal');
     var modalBody = document.getElementById('modal-body');
     var nextBtn = document.getElementById('next-btn');
+    var bgMusic = document.getElementById('bg-music');
 
     var isMuted = false;
     var width = 0;
@@ -101,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function draw() {
         ctx.clearRect(0, 0, width, height);
-
         var i, s;
         for (i = 0; i < bgStars.length; i++) {
             s = bgStars[i];
@@ -120,7 +92,6 @@ document.addEventListener('DOMContentLoaded', function() {
             ss.y += ss.spd * 0.6;
             ss.alpha -= 0.012;
             if (ss.alpha <= 0) { shootingStars.splice(i, 1); continue; }
-
             var tx = ss.x - ss.len * 0.7;
             var ty = ss.y - ss.len * 0.42;
             var grad = ctx.createLinearGradient(tx, ty, ss.x, ss.y);
@@ -144,7 +115,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     ctx.lineTo(constellationNodes[i].x, constellationNodes[i].y);
                 }
                 ctx.stroke();
-
                 ctx.strokeStyle = "rgba(255,215,0,0.7)";
                 ctx.lineWidth = 1.5;
                 ctx.beginPath();
@@ -198,24 +168,20 @@ document.addEventListener('DOMContentLoaded', function() {
         var py = height * 0.15;
         var uw = width - px * 2;
         var uh = height - py * 2;
-
         for (var i = 0; i < letterSteps.length; i++) {
             var progress = i / (letterSteps.length - 1);
             var x = px + (uw * progress);
             var yp = (i % 2 === 0) ? 0.15 + Math.random() * 0.2 : 0.55 + Math.random() * 0.2;
             var y = py + (uh * yp);
-
             var div = document.createElement('div');
             div.className = 'constellation-node';
             div.style.left = x + "px";
             div.style.top = y + "px";
-
             (function(idx) {
                 div.addEventListener('click', function() {
                     if (idx <= currentNodeIndex && !showMeyliName) showModal(idx);
                 });
             })(i);
-
             nodesContainer.appendChild(div);
             constellationNodes.push({ x: x, y: y, el: div });
         }
@@ -260,21 +226,20 @@ document.addEventListener('DOMContentLoaded', function() {
             draw();
         }, 1000);
 
-        // Reproducir musica - triggered by user click so browsers allow it
-        if (ytReady && ytPlayer && ytPlayer.playVideo) {
-            ytPlayer.setVolume(50);
-            ytPlayer.playVideo();
-        }
+        // Reproducir musica - simple y directo
+        bgMusic.volume = 0.5;
+        bgMusic.play().catch(function(e) {
+            console.log("Audio play error:", e);
+        });
     });
 
     // ===== MUTE =====
     muteBtn.addEventListener('click', function() {
-        if (!ytPlayer) return;
         if (isMuted) {
-            ytPlayer.unMute();
+            bgMusic.muted = false;
             muteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>';
         } else {
-            ytPlayer.mute();
+            bgMusic.muted = true;
             muteBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>';
         }
         isMuted = !isMuted;
